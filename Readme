@@ -1,0 +1,9 @@
+Spring Boot  Micro Service Application for demonstrating Basic GET and POST operation.
+
+Below are compnonents used for the application
+Java Version used: 1.8 ==> Developing Microservices application
+MySql verion: 5.7
+Jenkins: 2.319
+Docker Version: 20.10. 16
+Kubernetes: 1.24
+  
