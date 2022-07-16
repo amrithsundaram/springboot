@@ -1,0 +1,42 @@
+  node{
+    stage("GIT PUll"){
+        
+        git credentialsId: '3b2ef294-e65d-4875-9c26-b117c05c95b4', url: 'https://github.hpe.com/amrith-sundaram/springrest.git'
+    }
+    
+    stage('Mvn Package'){
+         def mvnHome = tool name: 'maven-3', type: 'maven'
+         def mvnCMD = "${mvnHome}/bin/mvn"
+         
+         echo "${mvnHome}"
+         sh "${mvnCMD} clean package"
+     }
+     
+     stage('Build Docker Image'){
+         
+        sh "docker build -t amrith501/springrest:0.0.1 ."
+    }
+    
+    stage ("Push Image to docker hub"){
+        
+        withCredentials([string(credentialsId: 'docker-pwd', variable: 'dockerhub')]) {
+    
+        sh "docker login -u amrith501 -p ${dockerhub}"
+        }
+        
+        sh "docker push amrith501/springrest:0.0.1"
+
+    stage("Orchestrate"){
+        echo "Mysql deployment" 
+        sh 'kubectl apply -f mysql-secret.yaml'
+        sh 'kubectl apply -f mysql-configmap.yaml'
+        sh 'kubectl apply -f mysql-pv-claim.yaml'
+        sh 'kubectl apply -f mysql-deployment.yaml'
+        sh 'kubectl apply -f mysql-service.yaml'
+        echo "Spring Boot App deployment" 
+        sh 'kubectl apply -f spring-app-service.yaml'
+        sh 'kubectl apply -f spring-app.yaml'
+        }
+    }
+    
+}
